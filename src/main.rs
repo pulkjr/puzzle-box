@@ -77,10 +77,10 @@ fn main() -> ! {
     // - ADC peripheral passed in for analog reads
     let hardware = HardwareBus::new(
         pins.led.into_push_pull_output(),
-        pins.gpio0.into_pull_down_input(),
-        pins.gpio1.into_pull_down_input(),
-        pins.gpio2.into_pull_down_input(),
-        pins.gpio3.into_pull_down_input(),
+        pins.gpio0.into_pull_up_input(),
+        pins.gpio1.into_pull_up_input(),
+        pins.gpio2.into_pull_up_input(),
+        pins.gpio3.into_pull_up_input(),
         pins.gpio4.into_push_pull_output(),
         pins.gpio26.into_floating_disabled(),
         adc,

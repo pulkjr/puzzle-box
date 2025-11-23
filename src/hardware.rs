@@ -3,6 +3,7 @@ use embedded_hal::digital::v2::InputPin;
 use rp_pico::hal::adc::{Adc, AdcPin};
 use rp_pico::hal::gpio::{
     bank0::*, AnyPin, FunctionNull, FunctionSioInput, FunctionSioOutput, Pin, PullDown, PullNone,
+    PullUp,
 };
 
 /// `HardwareBus` owns all hardware peripherals for the puzzle box.
@@ -24,10 +25,10 @@ impl HardwareBus {
     /// Creates a new `HardwareBus` with the given pins.
     pub fn new(
         internal_led: Pin<Gpio25, FunctionSioOutput, PullDown>,
-        top_button_a: Pin<Gpio0, FunctionSioInput, PullDown>,
-        top_button_b: Pin<Gpio1, FunctionSioInput, PullDown>,
-        top_button_c: Pin<Gpio2, FunctionSioInput, PullDown>,
-        top_button_d: Pin<Gpio3, FunctionSioInput, PullDown>,
+        top_button_a: Pin<Gpio0, FunctionSioInput, PullUp>,
+        top_button_b: Pin<Gpio1, FunctionSioInput, PullUp>,
+        top_button_c: Pin<Gpio2, FunctionSioInput, PullUp>,
+        top_button_d: Pin<Gpio3, FunctionSioInput, PullUp>,
         indicator_led: Pin<Gpio4, FunctionSioOutput, PullDown>,
         toggle_switches: Pin<Gpio26, FunctionNull, PullNone>,
         adc: Adc,
@@ -109,8 +110,8 @@ impl HardwareBus {
 ///
 /// * `P` - The GPIO pin identifier (e.g., `Gpio0`, `Gpio1`).
 pub struct Button<P: rp_pico::hal::gpio::PinId> {
-    /// The physical GPIO pin configured as an input with pull-down.
-    pin: Pin<P, FunctionSioInput, PullDown>,
+    /// The physical GPIO pin configured as an input with pull-up.
+    pin: Pin<P, FunctionSioInput, PullUp>,
     /// Timestamp (in ms) of the last accepted press event.
     last_pressed_ms: u64,
     /// Minimum interval (in ms) required between presses to avoid bounce.
@@ -122,13 +123,13 @@ impl<P: rp_pico::hal::gpio::PinId> Button<P> {
     ///
     /// # Arguments
     ///
-    /// * `pin` - The GPIO pin configured as a pull-down input.
+    /// * `pin` - The GPIO pin configured as a pull-up input.
     /// * `debounce_ms` - The debounce interval in milliseconds.
     ///
     /// # Returns
     ///
     /// A new [`Button`] instance ready to track presses.
-    pub fn new(pin: Pin<P, FunctionSioInput, PullDown>, debounce_ms: u64) -> Self {
+    pub fn new(pin: Pin<P, FunctionSioInput, PullUp>, debounce_ms: u64) -> Self {
         Self {
             pin,
             last_pressed_ms: 0,
@@ -155,7 +156,7 @@ impl<P: rp_pico::hal::gpio::PinId> Button<P> {
     /// - This method should be called repeatedly in your main loop with
     ///   the current time value.
     pub fn is_pressed(&mut self, now_ms: u64) -> bool {
-        if self.pin.is_high().unwrap_or(false) {
+        if self.pin.is_low().unwrap_or(false) {
             if now_ms.saturating_sub(self.last_pressed_ms) >= self.debounce_ms {
                 self.last_pressed_ms = now_ms;
                 return true;
