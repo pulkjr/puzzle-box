@@ -61,14 +61,17 @@ Each stage must be completed to advance, with a countdown timer adding urgency a
 ## 🛠️ Setup & Development
 
 1. Clone the template:
+
    ```bash
-   git clone https://github.com/rp-rs/rp2040-project-template
+   git clone https://github.com/pulkjr/puzzle-box.git
    ```
+
 2. Install Rust toolchain and dependencies.
-3. Build and flash to Raspberry Pi Pico:
+3. Build release
 
    ```bash
    cargo build --release
    ```
 
-4. Copy the .uf2 file to the Pico.
+4. Convert the `target/thumbv6m-none-eabi/release/puzzle-box` to a `.uf2` file format
+5. Copy the `puzzle-box.uf2` file to Raspberry Pi Pico:
