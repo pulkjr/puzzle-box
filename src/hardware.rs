@@ -116,6 +116,8 @@ pub struct Button<P: rp_pico::hal::gpio::PinId> {
     last_pressed_ms: u64,
     /// Minimum interval (in ms) required between presses to avoid bounce.
     debounce_ms: u64,
+    // Record if the button was pressed and is still pressed
+    was_pressed: bool,
 }
 
 impl<P: rp_pico::hal::gpio::PinId> Button<P> {
@@ -134,34 +136,52 @@ impl<P: rp_pico::hal::gpio::PinId> Button<P> {
             pin,
             last_pressed_ms: 0,
             debounce_ms,
+            was_pressed: false,
         }
     }
 
-    /// Determines if the button has been pressed, applying debounce logic.
+    /// Checks whether the button has just been pressed, with debouncing.
     ///
-    /// # Arguments
+    /// This method performs **edge detection** rather than simply reporting the
+    /// current pin level. It returns `true` only once per physical press event,
+    /// even if the button is held down for a long time. Subsequent calls while
+    /// the button remains pressed will return `false` until the button is released
+    /// and pressed again.
     ///
-    /// * `now_ms` - The current system time in milliseconds.
+    /// Debouncing is applied using the configured `debounce_ms` interval to filter
+    /// out mechanical noise and rapid toggling.
+    ///
+    /// # Parameters
+    /// - `now_ms`: The current timestamp in milliseconds, typically from a monotonic
+    ///   clock source.
     ///
     /// # Returns
+    /// - `true` if the button transitioned from released to pressed and the debounce
+    ///   interval has elapsed.
+    /// - `false` otherwise (button not pressed, still held down, or within debounce).
     ///
-    /// * `true` if the button is currently pressed and the debounce interval
-    ///   has elapsed since the last accepted press.
-    /// * `false` otherwise.
-    ///
-    /// # Notes
-    ///
-    /// - Uses `saturating_sub` to safely handle wraparound of the millisecond counter.
-    /// - Prevents false triggers caused by mechanical switch bounce.
-    /// - This method should be called repeatedly in your main loop with
-    ///   the current time value.
-    pub fn is_pressed(&mut self, now_ms: u64) -> bool {
-        if self.pin.is_low().unwrap_or(false) {
-            if now_ms.saturating_sub(self.last_pressed_ms) >= self.debounce_ms {
+    /// # Example
+    /// ```
+    /// if button.check_pressed(now_ms) {
+    ///     println!("Button was pressed!");
+    /// }
+    /// ```
+    pub fn check_pressed(&mut self, now_ms: u64) -> bool {
+        let pressed = self.pin.is_low().unwrap_or(false);
+
+        if pressed {
+            // Only fire if it was NOT pressed before
+            if !self.was_pressed && now_ms.saturating_sub(self.last_pressed_ms) >= self.debounce_ms
+            {
+                self.was_pressed = true;
                 self.last_pressed_ms = now_ms;
                 return true;
             }
+        } else {
+            // Reset when released
+            self.was_pressed = false;
         }
+
         false
     }
 }

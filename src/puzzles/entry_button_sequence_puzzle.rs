@@ -53,16 +53,16 @@ impl EntryButtonComboPuzzle {
 
     pub fn update(&mut self, hardware: &mut HardwareBus, now_ms: u64) {
         // Check each button; if pressed, compare against expected sequence
-        if hardware.top_button_a.is_pressed(now_ms) {
+        if hardware.top_button_a.check_pressed(now_ms) {
             self.check_press(ButtonId::A, hardware);
         }
-        if hardware.top_button_b.is_pressed(now_ms) {
+        if hardware.top_button_b.check_pressed(now_ms) {
             self.check_press(ButtonId::B, hardware);
         }
-        if hardware.top_button_c.is_pressed(now_ms) {
+        if hardware.top_button_c.check_pressed(now_ms) {
             self.check_press(ButtonId::C, hardware);
         }
-        if hardware.top_button_d.is_pressed(now_ms) {
+        if hardware.top_button_d.check_pressed(now_ms) {
             self.check_press(ButtonId::D, hardware);
         }
     }
@@ -80,6 +80,7 @@ impl EntryButtonComboPuzzle {
             }
         } else {
             // Wrong button resets the puzzle
+            hardware.internal_led.set_low().unwrap();
             self.current_index = 0;
         }
     }
