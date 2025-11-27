@@ -12,7 +12,7 @@ use rp_pico as bsp;
 
 use bsp::hal::{
     clocks::{init_clocks_and_plls, Clock},
-    pac,
+    pac, pwm,
     sio::Sio,
     watchdog::Watchdog,
 };
@@ -70,6 +70,10 @@ fn main() -> ! {
     // This allows us to read analog voltages from pins GPIO26–28.
     let mut adc = rp_pico::hal::adc::Adc::new(pac.ADC, &mut pac.RESETS);
 
+    let pwm_slices = pwm::Slices::new(pac.PWM, &mut pac.RESETS);
+
+    let pwm2 = pwm_slices.pwm2.into_mode();
+
     // Create the HardwareBus abstraction, which owns all hardware peripherals.
     // - LED pin configured as push-pull output
     // - Buttons configured as pull-down inputs
@@ -84,6 +88,9 @@ fn main() -> ! {
         pins.gpio4.into_push_pull_output(),
         pins.gpio26.into_floating_disabled(),
         adc,
+        pins.gpio5
+            .into_function::<rp_pico::hal::gpio::FunctionPwm>(),
+        pwm2,
     );
 
     // Create your PuzzleBox abstraction, which uses the HardwareBus

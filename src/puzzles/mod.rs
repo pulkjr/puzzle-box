@@ -1,5 +1,6 @@
 pub mod active_toggle_puzzle;
 pub mod entry_button_sequence_puzzle;
+
 use crate::{puzzles::active_toggle_puzzle::ActiveTogglePuzzle, HardwareBus};
 
 pub trait Puzzle {
