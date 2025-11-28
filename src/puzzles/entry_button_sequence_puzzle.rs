@@ -77,6 +77,7 @@ impl EntryButtonComboPuzzle {
             self.current_index += 1;
             if self.current_index == self.expected_sequence.len() {
                 self.is_complete = true;
+                hardware.speaker.ding();
             }
         } else {
             // Wrong button resets the puzzle
