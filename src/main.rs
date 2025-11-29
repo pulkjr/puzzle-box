@@ -68,7 +68,7 @@ fn main() -> ! {
 
     // Initialize the ADC peripheral (Analog-to-Digital Converter).
     // This allows us to read analog voltages from pins GPIO26–28.
-    let mut adc = rp_pico::hal::adc::Adc::new(pac.ADC, &mut pac.RESETS);
+    let adc = rp_pico::hal::adc::Adc::new(pac.ADC, &mut pac.RESETS);
 
     let pwm_slices = pwm::Slices::new(pac.PWM, &mut pac.RESETS);
 
@@ -91,6 +91,9 @@ fn main() -> ! {
         pins.gpio5
             .into_function::<rp_pico::hal::gpio::FunctionPwm>(),
         pwm2,
+        pins.gpio6.into_push_pull_output(),
+        pins.gpio7.into_push_pull_output(),
+        pins.gpio8.into_push_pull_output(),
     );
 
     // Create your PuzzleBox abstraction, which uses the HardwareBus
@@ -105,6 +108,6 @@ fn main() -> ! {
         // Convert to milliseconds
         let now_ms = now_us / 1000;
 
-        puzzle_box.tick(now_ms);
+        puzzle_box.tick(now_ms, &mut delay);
     }
 }

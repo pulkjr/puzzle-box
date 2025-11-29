@@ -3,6 +3,7 @@ pub mod hardware;
 pub mod puzzles;
 pub mod stages;
 
+use cortex_m::delay::Delay;
 use hardware::HardwareBus;
 
 use stages::*;
@@ -64,10 +65,11 @@ impl PuzzleBox {
     ///     puzzle_box.tick();
     /// }
     /// ```
-    pub fn tick(&mut self, now_ms: u64) {
+    /// pub fn tick<D: DelayMs<u16>>(&mut self, now_ms: u64, delay: &mut D) {
+    pub fn tick(&mut self, now_ms: u64, delay: &mut Delay) {
         match &mut self.current_stage {
             PuzzleBoxStage::Entry(stage) => {
-                if stage.update(&mut self.hardware, now_ms) {
+                if stage.update(&mut self.hardware, now_ms, delay) {
                     // Transition to Active stage once Entry puzzle is complete
                     self.current_stage = PuzzleBoxStage::Active(ActiveStage::new());
                 }

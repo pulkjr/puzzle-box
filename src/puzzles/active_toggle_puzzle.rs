@@ -20,6 +20,7 @@ impl ActiveTogglePuzzle {
 }
 impl Puzzle for ActiveTogglePuzzle {
     fn update(&mut self, hardware: &mut HardwareBus, now_ms: u64) {
+        let _ = now_ms; // this will be needed for buttons
         if self.is_complete || !self.unlocked {
             return;
         }

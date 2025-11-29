@@ -1,4 +1,4 @@
-use crate::hardware::Speaker;
+use crate::hardware::{Lock, Speaker};
 
 use super::button::Button;
 use embedded_hal::adc::{Channel, OneShot};
@@ -23,7 +23,10 @@ pub struct HardwareBus {
     pub indicator_led: Pin<Gpio4, FunctionSioOutput, PullDown>,
     pub toggle_switches: AdcPin<Pin<Gpio26, FunctionSioInput, PullNone>>, // ADC-capable pin
     pub adc: Adc,                                                         // ADC peripheral
-    pub speaker: Speaker,
+    pub speaker: Speaker,                                                 // Gpio5
+    pub lock1: Lock<Gpio6>,
+    pub lock2: Lock<Gpio7>,
+    pub lock3: Lock<Gpio8>,
 }
 
 impl HardwareBus {
@@ -37,8 +40,11 @@ impl HardwareBus {
         indicator_led: Pin<Gpio4, FunctionSioOutput, PullDown>,
         toggle_switches: Pin<Gpio26, FunctionNull, PullNone>,
         adc: Adc,
-        speaker_pin: Pin<Gpio5, FunctionPwm, PullDown>, // example GPIO5
+        speaker_pin: Pin<Gpio5, FunctionPwm, PullDown>,
         pwm2: pwm::Slice<pwm::Pwm2, pwm::FreeRunning>,
+        lock1: Pin<Gpio6, FunctionSioOutput, PullDown>,
+        lock2: Pin<Gpio7, FunctionSioOutput, PullDown>,
+        lock3: Pin<Gpio8, FunctionSioOutput, PullDown>,
     ) -> Self {
         let toggle_adc_gpio = toggle_switches.into_floating_input();
 
@@ -54,6 +60,9 @@ impl HardwareBus {
             toggle_switches: toggle_adc,
             adc,
             speaker: Speaker::new(pwm2, speaker_pin),
+            lock1: Lock::new(lock1),
+            lock2: Lock::new(lock2),
+            lock3: Lock::new(lock3),
         }
     }
     /// Perform a raw ADC conversion on the given pin.

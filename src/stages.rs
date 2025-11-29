@@ -3,6 +3,7 @@ use crate::puzzles::{
     ActivePuzzleTypes, Puzzle,
 };
 use crate::HardwareBus;
+use cortex_m::delay::Delay;
 use heapless::Vec;
 
 pub enum PuzzleBoxStage {
@@ -30,8 +31,8 @@ impl EntryStage {
         }
     }
 
-    pub fn update(&mut self, hardware: &mut HardwareBus, now_ms: u64) -> bool {
-        self.puzzle.update(hardware, now_ms);
+    pub fn update(&mut self, hardware: &mut HardwareBus, now_ms: u64, delay: &mut Delay) -> bool {
+        self.puzzle.update(hardware, now_ms, delay);
         self.puzzle.is_complete()
     }
 }
