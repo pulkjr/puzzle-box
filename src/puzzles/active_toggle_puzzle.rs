@@ -14,17 +14,19 @@ impl ActiveTogglePuzzle {
             is_complete: false,
             unlocked: false,
             phase: 0,
-            sequence: [3, 7, 12, 5], // example codes
+            sequence: [3, 7, 12, 5],
         }
     }
 }
 impl Puzzle for ActiveTogglePuzzle {
     fn update(&mut self, hardware: &mut HardwareBus, now_ms: u64) {
         let _ = now_ms; // this will be needed for buttons
+                        //
         if self.is_complete || !self.unlocked {
             return;
         }
-        let value = hardware.read_toggle_switch_value();
+
+        let value = hardware.adc_toggle_switch.read_toggle_switch_value();
 
         if value == self.sequence[self.phase] {
             // advance phase
